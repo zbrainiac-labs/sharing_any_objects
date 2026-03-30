@@ -146,6 +146,17 @@ python download_files.py --connection bank1 --list-only
 python download_files.py --connection bank1 --output-dir ./downloads
 ```
 
+### Streamlit app
+
+A browser-based file download portal with role-based access.
+
+```bash
+pip install streamlit
+streamlit run app/app.py
+```
+
+Open http://localhost:8501 in your browser. Select a role (`BANK1_ROLE` or `BANK2_ROLE`) to list and download the files available to that role. Downloaded files are saved to `downloads/<TENANT_ID>/`.
+
 ## Files
 
 | File | Description |
@@ -153,3 +164,4 @@ python download_files.py --connection bank1 --output-dir ./downloads
 | `deploy_all.sql` | Deployment script (configurable via session variables) |
 | `download_files.py` | Download files for the current role |
 | `upload_mt.py` | Upload files with tenant registration |
+| `app/app.py` | Streamlit file download portal |
