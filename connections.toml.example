@@ -5,18 +5,18 @@
 account = "<YOUR_ACCOUNT>"          # e.g. sfseeurope-demo_yourorg
 user = "bank1_user"
 role = "BANK1_ROLE"
-database = "MD_TEST"
-schema = "DOC_AI"
+database = "ECO_DEV"
+schema = "ECOS_RAW_V001"
 warehouse = "MD_TEST_WH"
 authenticator = "programmatic_access_token"
-token = "<PAT_TOKEN>"               # Generate in Snowsight: Admin → Security → Programmatic Access Tokens
+token = "<PAT_TOKEN>"               # Generate in Snowsight: Admin -> Security -> Programmatic Access Tokens
 
 [bank2]
 account = "<YOUR_ACCOUNT>"
 user = "bank2_user"
 role = "BANK2_ROLE"
-database = "MD_TEST"
-schema = "DOC_AI"
+database = "ECO_DEV"
+schema = "ECOS_RAW_V001"
 warehouse = "MD_TEST_WH"
 authenticator = "programmatic_access_token"
 token = "<PAT_TOKEN>"

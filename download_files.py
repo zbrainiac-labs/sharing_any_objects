@@ -12,8 +12,10 @@ import argparse
 import snowflake.connector
 from pathlib import Path
 
-VIEW = "MD_TEST.DOC_AI.ECOS_RAW_SV_STAGE_FILES_DOWNLOAD_MT"
-STAGE = "MD_TEST.DOC_AI.RAW_ST_DOC_MT"
+DATABASE = "ECO_DEV"
+SCHEMA = "ECOS_RAW_V001"
+VIEW = f"{DATABASE}.{SCHEMA}.ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT"
+STAGE = f"{DATABASE}.{SCHEMA}.ECOS_RAW_ST_DOC_MT"
 
 
 def get_snowflake_connection(connection_name: str):

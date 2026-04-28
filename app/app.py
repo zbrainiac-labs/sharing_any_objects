@@ -3,8 +3,10 @@ from pathlib import Path
 import streamlit as st
 import snowflake.connector
 
-VIEW = "MD_TEST.DOC_AI.ECOS_RAW_SV_STAGE_FILES_DOWNLOAD_MT"
-STAGE = "MD_TEST.DOC_AI.RAW_ST_DOC_MT"
+DATABASE = "ECO_DEV"
+SCHEMA = "ECOS_RAW_V001"
+VIEW = f"{DATABASE}.{SCHEMA}.ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT"
+STAGE = f"{DATABASE}.{SCHEMA}.ECOS_RAW_ST_DOC_MT"
 OUTPUT_DIR = Path(__file__).parent.parent / "downloads"
 
 ROLE_CONNECTION_MAP = {
@@ -56,8 +58,6 @@ def on_select_all(files: list[dict]) -> None:
         st.session_state[f"cb_{f['FILE_PATH']}"] = val
 
 
-# ── UI ────────────────────────────────────────────────────────────────────────
-
 st.title("File Download Portal")
 
 role = st.selectbox("Select Role", list(ROLE_CONNECTION_MAP.keys()), key="selected_role")
@@ -93,7 +93,7 @@ else:
                 label_visibility="collapsed",
             )
             c2.write(f["FILE_NAME"])
-            c3.write(f"{f['FILE_SIZE'] / 1024:.1f} KB" if f["FILE_SIZE"] else "—")
+            c3.write(f"{f['FILE_SIZE'] / 1024:.1f} KB" if f["FILE_SIZE"] else "---")
             st.session_state.checked[f["FILE_PATH"]] = checked
 
     selected = [f for f in files if st.session_state.checked.get(f["FILE_PATH"])]
