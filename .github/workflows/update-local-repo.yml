@@ -70,16 +70,6 @@ jobs:
         run: |
           bash github-workflow-verification_v1.sh
 
-      - name: Run Sonar Scanner
-        run: |
-          bash /usr/local/bin/sonar-scanner_v2.sh
-
-      - name: Wait for Quality Gate to complete
-        continue-on-error: true
-        uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
-        with:
-          scanMetadataReportFile: '.scannerwork/report-task.txt'
-
       - name: DCM Analyze + Plan + Deploy
         run: |
           bash /usr/local/bin/snowflake-deploy-dcm_v1.sh \
@@ -95,6 +85,16 @@ jobs:
             --SOURCE_DATABASE=$SOURCE_DATABASE \
             --SOURCE_SCHEMA=$SOURCE_SCHEMA \
             --CONNECTION_NAME=$CONNECTION_NAME
+
+      - name: Run Sonar Scanner
+        run: |
+          bash /usr/local/bin/sonar-scanner_v2.sh
+
+      - name: Wait for Quality Gate to complete
+        continue-on-error: true
+        uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
+        with:
+          scanMetadataReportFile: '.scannerwork/report-task.txt'
 
       - name: Clone schema for regression tests
         run: |
