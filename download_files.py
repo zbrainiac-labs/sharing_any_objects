@@ -26,7 +26,7 @@ def get_snowflake_connection(connection_name: str):
 
 def get_available_files(conn) -> list[dict]:
     cursor = conn.cursor()
-    cursor.execute(f"SELECT TENANT_ID, FILE_NAME, FILE_PATH, FILE_SIZE, DOWNLOAD_URL FROM {VIEW}")
+    cursor.execute(f"SELECT TENANT_ID, BUSINESS_UNIT, FILE_TYPE, FILE_NAME, FILE_PATH, FILE_SIZE, DOWNLOAD_URL FROM {VIEW}")
     columns = [desc[0] for desc in cursor.description]
     files = [dict(zip(columns, row)) for row in cursor.fetchall()]
     cursor.close()
@@ -81,7 +81,7 @@ def main():
     print(f"Found {len(files)} file(s):\n")
     for i, f in enumerate(files, 1):
         size_kb = f["FILE_SIZE"] / 1024 if f["FILE_SIZE"] else 0
-        print(f"  {i}. [{f['TENANT_ID']}] {f['FILE_NAME']} ({size_kb:.1f} KB)")
+        print(f"  {i}. [{f['TENANT_ID']}] [{f.get('BUSINESS_UNIT', '')}] [{f.get('FILE_TYPE', '')}] {f['FILE_NAME']} ({size_kb:.1f} KB)")
 
     if args.list_only:
         conn.close()

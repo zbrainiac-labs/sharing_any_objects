@@ -1,11 +1,13 @@
-USE DATABASE ECO_DEV;
-USE SCHEMA ECOS_RAW_V001;
+USE DATABASE {{db}};
+USE SCHEMA {{schema}};
 
 CREATE OR REPLACE PROCEDURE ECOS_RAW_SP_REGISTER_FILE(
-    TENANT_ID  VARCHAR,
-    FILE_PATH  VARCHAR,
-    FILE_NAME  VARCHAR,
-    FILE_SIZE  FLOAT
+    TENANT_ID      VARCHAR,
+    BUSINESS_UNIT  VARCHAR,
+    FILE_TYPE      VARCHAR,
+    FILE_PATH      VARCHAR,
+    FILE_NAME      VARCHAR,
+    FILE_SIZE      FLOAT
 )
 RETURNS VARCHAR
 LANGUAGE JAVASCRIPT
@@ -25,22 +27,28 @@ var mergeSql =
     "WHEN MATCHED THEN UPDATE SET " +
     "    t.FILE_SIZE = " + FILE_SIZE + ", " +
     "    t.FILE_NAME = " + q + FILE_NAME + q + ", " +
+    "    t.BUSINESS_UNIT = " + q + BUSINESS_UNIT + q + ", " +
+    "    t.FILE_TYPE = " + q + FILE_TYPE + q + ", " +
     "    t.REFRESHED_AT = CURRENT_TIMESTAMP() " +
-    "WHEN NOT MATCHED THEN INSERT (TENANT_ID, FILE_NAME, FILE_PATH, FILE_SIZE) " +
-    "VALUES (" + q + TENANT_ID + q + ", " + q + FILE_NAME + q + ", " + q + FILE_PATH + q + ", " + FILE_SIZE + ")";
+    "WHEN NOT MATCHED THEN INSERT (TENANT_ID, BUSINESS_UNIT, FILE_TYPE, FILE_NAME, FILE_PATH, FILE_SIZE) " +
+    "VALUES (" + q + TENANT_ID + q + ", " + q + BUSINESS_UNIT + q + ", " + q + FILE_TYPE + q + ", " + q + FILE_NAME + q + ", " + q + FILE_PATH + q + ", " + FILE_SIZE + ")";
 
 snowflake.execute({sqlText: mergeSql});
-return "File registered: " + FILE_PATH + " for tenant: " + TENANT_ID;';
+return "File registered: " + FILE_PATH + " for tenant: " + TENANT_ID + ", business_unit: " + BUSINESS_UNIT + ", type: " + FILE_TYPE;';
 
-CREATE OR REPLACE SECURE VIEW ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT AS
+CREATE OR REPLACE SECURE VIEW ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT
+COMMENT = 'Per-tenant file listing with pre-signed download URLs - filtered by row access policy based on TENANT_ID'
+AS
 SELECT
     TENANT_ID,
+    BUSINESS_UNIT,
+    FILE_TYPE,
     FILE_NAME,
     FILE_PATH,
     FILE_SIZE,
     LAST_MODIFIED,
     REFRESHED_AT,
-    BUILD_STAGE_FILE_URL('@ECO_DEV.ECOS_RAW_V001.ECOS_RAW_ST_DOC_MT', FILE_PATH) AS DOWNLOAD_URL
+    BUILD_STAGE_FILE_URL('@{{db}}.{{schema}}.ECOS_RAW_ST_DOC_MT', FILE_PATH) AS DOWNLOAD_URL
 FROM ECOS_RAW_TB_STAGE_FILES_MT;
 
 CREATE OR REPLACE ROW ACCESS POLICY ECOS_RAW_PL_STAGE_FILES_MT

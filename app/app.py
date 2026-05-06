@@ -22,7 +22,7 @@ def get_connection(connection_name: str):
 
 def get_files(conn) -> list[dict]:
     cursor = conn.cursor()
-    cursor.execute(f"SELECT TENANT_ID, FILE_NAME, FILE_PATH, FILE_SIZE FROM {VIEW}")
+    cursor.execute(f"SELECT TENANT_ID, BUSINESS_UNIT, FILE_TYPE, FILE_NAME, FILE_PATH, FILE_SIZE FROM {VIEW}")
     columns = [desc[0] for desc in cursor.description]
     rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
     cursor.close()
@@ -60,9 +60,21 @@ def on_select_all(files: list[dict]) -> None:
 
 st.title("File Download Portal")
 
-role = st.selectbox("Select Role", list(ROLE_CONNECTION_MAP.keys()), key="selected_role")
+col_role, col_bu, col_type = st.columns(3)
+role = col_role.selectbox("Select Role", list(ROLE_CONNECTION_MAP.keys()), key="selected_role")
 conn = get_connection(ROLE_CONNECTION_MAP[role])
 files = get_files(conn)
+
+business_units = sorted(set(f.get("BUSINESS_UNIT", "") for f in files if f.get("BUSINESS_UNIT")))
+file_types = sorted(set(f.get("FILE_TYPE", "") for f in files if f.get("FILE_TYPE")))
+
+selected_bu = col_bu.selectbox("Business Unit", ["All"] + business_units, key="filter_bu")
+selected_type = col_type.selectbox("File Type", ["All"] + file_types, key="filter_type")
+
+if selected_bu != "All":
+    files = [f for f in files if f.get("BUSINESS_UNIT") == selected_bu]
+if selected_type != "All":
+    files = [f for f in files if f.get("FILE_TYPE") == selected_type]
 
 st.divider()
 
@@ -81,19 +93,23 @@ else:
     )
 
     with st.container(border=True):
-        c1, c2, c3 = st.columns([1, 5, 2])
+        c1, c2, c3, c4, c5 = st.columns([1, 4, 2, 2, 2])
         c1.caption("Select")
         c2.caption("File name")
-        c3.caption("Size")
+        c3.caption("Business Unit")
+        c4.caption("Type")
+        c5.caption("Size")
         for f in files:
-            c1, c2, c3 = st.columns([1, 5, 2])
+            c1, c2, c3, c4, c5 = st.columns([1, 4, 2, 2, 2])
             checked = c1.checkbox(
                 "select",
                 key=f"cb_{f['FILE_PATH']}",
                 label_visibility="collapsed",
             )
             c2.write(f["FILE_NAME"])
-            c3.write(f"{f['FILE_SIZE'] / 1024:.1f} KB" if f["FILE_SIZE"] else "---")
+            c3.write(f.get("BUSINESS_UNIT", "---"))
+            c4.write(f.get("FILE_TYPE", "---"))
+            c5.write(f"{f['FILE_SIZE'] / 1024:.1f} KB" if f["FILE_SIZE"] else "---")
             st.session_state.checked[f["FILE_PATH"]] = checked
 
     selected = [f for f in files if st.session_state.checked.get(f["FILE_PATH"])]

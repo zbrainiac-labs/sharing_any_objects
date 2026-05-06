@@ -1,6 +1,7 @@
 # Snowflake Secure File Sharing -- Multi-Tenancy
 
 Secure file sharing with per-tenant access control using a single shared stage and Row Access Policies.  
+Each file is tagged with a **tenant**, **business unit**, and **file type** for fine-grained classification and filtering.  
 Managed as a DCM (Database Change Management) project following [DataOpsBackbone](https://github.com/zBrainiac/DataOpsBackbone) naming conventions.
 
 ---
@@ -25,7 +26,7 @@ All Snowflake object names follow the [DataOpsBackbone naming standard](https://
 
 ```
 sharing_any_objects/
-├── manifest.yml                    # DCM project manifest
+├── manifest.yml                    # DCM project manifest (templating variables)
 ├── pre_deploy.sql                  # Database, schema, DCM project creation
 ├── post_deploy.sql                 # Secure view, RAP, stored procedure
 ├── post_deployment_grants.sql      # Role grants and contacts (run with ACCOUNTADMIN)
@@ -89,7 +90,8 @@ sharing_any_objects/
                               |
            +------------------+-------------------+
            |    ECOS_RAW_TB_STAGE_FILES_MT        |
-           |  TENANT_ID | FILE_NAME | FILE_PATH   |
+           |  TENANT_ID | BUSINESS_UNIT |         |
+           |  FILE_TYPE | FILE_NAME | FILE_PATH   |
            +------------------+-------------------+
                               ^
                               | ECOS_RAW_SP_REGISTER_FILE()
@@ -116,7 +118,7 @@ sharing_any_objects/
 | Object | Type | Managed By | Description |
 |--------|------|------------|-------------|
 | `ECOS_RAW_ST_DOC_MT` | Internal Stage | DCM DEFINE | Single shared stage for all tenants |
-| `ECOS_RAW_TB_STAGE_FILES_MT` | Table | DCM DEFINE | File metadata with TENANT_ID column |
+| `ECOS_RAW_TB_STAGE_FILES_MT` | Table | DCM DEFINE | File metadata with TENANT_ID, BUSINESS_UNIT, FILE_TYPE |
 | `ECOS_RAW_TB_CONSUMER_ROLE_MAPPING` | Table | DCM DEFINE | Maps consumer account locators to tenant IDs |
 | `ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT` | Secure View | post_deploy.sql | Per-tenant file list with download URLs |
 | `ECOS_RAW_PL_STAGE_FILES_MT` | Row Access Policy | post_deploy.sql | Local + cross-account tenant isolation |
@@ -146,7 +148,7 @@ snow dcm plan ECO_DEV.ECOS_RAW_V001.SHARING_OBJECTS -c <connection> --target DEV
 snow dcm deploy ECO_DEV.ECOS_RAW_V001.SHARING_OBJECTS -c <connection> --target DEV --alias "initial"
 
 # 5. Run post-deployment (secure view, RAP, stored procedure)
-snow sql -f post_deploy.sql -c <connection> --role ACCOUNTADMIN
+snow sql -f post_deploy.sql -c <connection> --role CICD
 
 # 6. Apply grants and contacts (requires ACCOUNTADMIN)
 snow sql -f post_deployment_grants.sql -c <connection> --role ACCOUNTADMIN
@@ -208,7 +210,7 @@ token = "<PAT_TOKEN>"
 
 ### Upload files
 ```bash
-python upload_mt.py --connection <admin_connection> --tenant-id BANK1 --files invoice.pdf report.pdf
+python3 upload_mt.py --connection <admin_connection> --tenant-id BANK1 --business-unit Tax --type IRS --files invoice.pdf report.pdf
 ```
 
 ### List available files
@@ -227,7 +229,7 @@ python3 download_files.py --connection bank1 --output-dir ./downloads
 streamlit run app/app.py
 ```
 
-Open http://localhost:8501 in your browser. Select a role (`BANK1_ROLE` or `BANK2_ROLE`) to list and download files.
+Open http://localhost:8501 in your browser. Select a role, then filter by **Business Unit** and **File Type** to narrow down the file list.
 
 ## SQL Validation Tests
 
@@ -236,20 +238,21 @@ Tests are in `sqlunit/tests.sqltest` and validate:
 - Table existence (`ECOS_RAW_TB_STAGE_FILES_MT`, `ECOS_RAW_TB_CONSUMER_ROLE_MAPPING`)
 - Stage existence (`ECOS_RAW_ST_DOC_MT`)
 - View existence (`ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT`)
-- Column presence and count for each table
+- Column presence (`TENANT_ID`, `BUSINESS_UNIT`, `FILE_TYPE`, `FILE_PATH`, `REFRESHED_AT`, `CONSUMER_ACCOUNT`)
+- Column count for each table
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `manifest.yml` | DCM project manifest with DEV target |
+| `manifest.yml` | DCM project manifest with DEV target and templating variables |
 | `pre_deploy.sql` | Creates database, schema, DCM project |
 | `post_deploy.sql` | Secure view, RAP, stored procedure |
-| `post_deployment_grants.sql` | Role grants, warehouse access, contacts (ACCOUNTADMIN) |
+| `post_deployment_grants.sql` | Role grants, future grants, warehouse access, contacts (ACCOUNTADMIN) |
 | `sources/definitions/infrastructure.sql` | Stage definition (DCM DEFINE) |
-| `sources/definitions/tables.sql` | Table definitions (DCM DEFINE) |
+| `sources/definitions/tables.sql` | Table definitions with column comments (DCM DEFINE) |
 | `sqlunit/tests.sqltest` | SQL validation tests |
-| `upload_mt.py` | Upload files with tenant registration |
+| `upload_mt.py` | Upload files with tenant, business unit, and type registration |
 | `download_files.py` | Download files for the current role |
-| `app/app.py` | Streamlit file download portal |
+| `app/app.py` | Streamlit file download portal with role, business unit, and type filters |
 | `connections.toml.example` | Snowflake connection template |
