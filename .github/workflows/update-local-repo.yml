@@ -10,8 +10,8 @@ jobs:
     uses: zbrainiac-labs/DataOpsBackbone/.github/workflows/dataops-pipeline.yml@main
     with:
       SOURCE_DATABASE: ECO_DEV
-      SOURCE_SCHEMA: ECOS_RAW_V001
-      DCM_PROJECT_IDENTIFIER: ECO_DEV.ECOS_RAW_V001.SHARING_OBJECTS
+      SOURCE_SCHEMA: ECO_DCM
+      DCM_PROJECT_IDENTIFIER: ECO_DEV.ECO_DCM.SHARING_OBJECTS
       DCM_TARGET: DEV
       CLONE_PER_BUILD: true
     secrets: inherit

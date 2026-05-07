@@ -82,7 +82,7 @@ shared_content:
   databases:
     - ECO_DEV:
         schemas:
-          - ECOS_RAW_V001:
+          - ECO_RAW_v001:
               roles: [app_user]
               views:
                 - ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT:

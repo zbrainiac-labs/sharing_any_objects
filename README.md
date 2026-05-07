@@ -13,7 +13,7 @@ All Snowflake object names follow the [DataOpsBackbone naming standard](https://
 | Level | Pattern | This Project |
 |-------|---------|--------------|
 | Database | `{DOMAIN}_{ENV}` | `ECO_DEV` |
-| Schema | `{DOMAIN}_{MATURITY}_v{NNN}` | `ECOS_RAW_V001` |
+| Schema | `{DOMAIN}_{MATURITY}_v{NNN}` | `ECO_RAW_v001` |
 | Objects | `{DOMAIN}{COMP}_{MATURITY}_{TYPE}_{TEXT}` | `ECOS_RAW_TB_STAGE_FILES_MT` |
 
 - **Domain**: `ECO` (Ecosystem)
@@ -139,13 +139,13 @@ sharing_any_objects/
 snow sql -f pre_deploy.sql -c <connection> --role ACCOUNTADMIN
 
 # 2. Analyze definitions
-snow dcm raw-analyze ECO_DEV.ECOS_RAW_V001.SHARING_OBJECTS -c <connection> --target DEV
+snow dcm raw-analyze ECO_DEV.ECO_RAW_v001.SHARING_OBJECTS -c <connection> --target DEV
 
 # 3. Plan changes
-snow dcm plan ECO_DEV.ECOS_RAW_V001.SHARING_OBJECTS -c <connection> --target DEV --save-output
+snow dcm plan ECO_DEV.ECO_RAW_v001.SHARING_OBJECTS -c <connection> --target DEV --save-output
 
 # 4. Deploy
-snow dcm deploy ECO_DEV.ECOS_RAW_V001.SHARING_OBJECTS -c <connection> --target DEV --alias "initial"
+snow dcm deploy ECO_DEV.ECO_RAW_v001.SHARING_OBJECTS -c <connection> --target DEV --alias "initial"
 
 # 5. Run post-deployment (secure view, RAP, stored procedure)
 snow sql -f post_deploy.sql -c <connection> --role CICD
@@ -175,7 +175,7 @@ When the secure view is shared via a Snowflake listing:
 To onboard a new consumer account:
 
 ```sql
-INSERT INTO ECO_DEV.ECOS_RAW_V001.ECOS_RAW_TB_CONSUMER_ROLE_MAPPING
+INSERT INTO ECO_DEV.ECO_RAW_v001.ECOS_RAW_TB_CONSUMER_ROLE_MAPPING
     (CONSUMER_ACCOUNT, CONSUMER_ROLE, TENANT_ID)
 VALUES ('GK68488', 'BANK1_ROLE', 'BANK1');
 ```
@@ -198,7 +198,7 @@ account = "zs28104.eu-central-1"
 user = "BANK1_USER"
 role = "BANK1_ROLE"
 database = "ECO_DEV"
-schema = "ECOS_RAW_V001"
+schema = "ECO_RAW_v001"
 warehouse = "MD_TEST_WH"
 authenticator = "programmatic_access_token"
 token = "<PAT_TOKEN>"

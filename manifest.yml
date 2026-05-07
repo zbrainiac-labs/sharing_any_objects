@@ -5,17 +5,17 @@ default_target: 'DEV'
 targets:
   DEV:
     account_identifier: SFSEEUROPE-ZS28104
-    project_name: 'ECO_DEV.ECOS_RAW_V001.SHARING_OBJECTS'
+    project_name: 'ECO_DEV.ECO_DCM.SHARING_OBJECTS'
     project_owner: CICD
     templating_config: 'DEV'
 
 templating:
   defaults:
     db: 'ECO_DEV'
-    schema: 'ECOS_RAW_V001'
+    schema: 'ECO_RAW_v001'
     wh: 'MD_TEST_WH'
   configurations:
     DEV:
       db: 'ECO_DEV'
-      schema: 'ECOS_RAW_V001'
+      schema: 'ECO_RAW_v001'
       wh: 'MD_TEST_WH'

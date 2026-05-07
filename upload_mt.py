@@ -14,7 +14,7 @@ from pathlib import Path
 import snowflake.connector
 
 DATABASE = "ECO_DEV"
-SCHEMA = "ECOS_RAW_V001"
+SCHEMA = "ECO_RAW_v001"
 STAGE_FQ = f"@{DATABASE}.{SCHEMA}.ECOS_RAW_ST_DOC_MT"
 SP_FQ = f"{DATABASE}.{SCHEMA}.ECOS_RAW_SP_REGISTER_FILE"
 

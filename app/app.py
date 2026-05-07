@@ -4,7 +4,7 @@ import streamlit as st
 import snowflake.connector
 
 DATABASE = "ECO_DEV"
-SCHEMA = "ECOS_RAW_V001"
+SCHEMA = "ECO_RAW_v001"
 VIEW = f"{DATABASE}.{SCHEMA}.ECOS_RAW_VW_STAGE_FILES_DOWNLOAD_MT"
 STAGE = f"{DATABASE}.{SCHEMA}.ECOS_RAW_ST_DOC_MT"
 OUTPUT_DIR = Path(__file__).parent.parent / "downloads"
