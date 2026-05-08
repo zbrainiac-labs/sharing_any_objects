@@ -29,6 +29,7 @@ sharing_any_objects/
 ├── manifest.yml                    # DCM project manifest (templating variables)
 ├── pre_deploy.sql                  # Database, schema, DCM project creation
 ├── post_deploy.sql                 # Secure view, RAP, stored procedure
+├── setup.sql                       # Application Package setup (ACCOUNTADMIN, one-time)
 ├── post_deployment_grants.sql      # Role grants and contacts (run with ACCOUNTADMIN)
 ├── .github/
 │   └── workflows/
@@ -139,13 +140,13 @@ sharing_any_objects/
 snow sql -f pre_deploy.sql -c <connection> --role ACCOUNTADMIN
 
 # 2. Analyze definitions
-snow dcm raw-analyze ECO_DEV.ECO_RAW_v001.SHARING_OBJECTS -c <connection> --target DEV
+snow dcm raw-analyze ECO_DEV.ECO_DCM.SHARING_OBJECTS -c <connection> --target DEV
 
 # 3. Plan changes
-snow dcm plan ECO_DEV.ECO_RAW_v001.SHARING_OBJECTS -c <connection> --target DEV --save-output
+snow dcm plan ECO_DEV.ECO_DCM.SHARING_OBJECTS -c <connection> --target DEV --save-output
 
 # 4. Deploy
-snow dcm deploy ECO_DEV.ECO_RAW_v001.SHARING_OBJECTS -c <connection> --target DEV --alias "initial"
+snow dcm deploy ECO_DEV.ECO_DCM.SHARING_OBJECTS -c <connection> --target DEV --alias "initial"
 
 # 5. Run post-deployment (secure view, RAP, stored procedure)
 snow sql -f post_deploy.sql -c <connection> --role CICD
