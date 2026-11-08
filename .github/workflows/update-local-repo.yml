@@ -5,13 +5,21 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# OIDC (id-token) + GitHub release (contents) for the reusable pipeline
+permissions:
+  id-token: write
+  contents: write
+  actions: read
+  checks: write
+
 jobs:
   pipeline:
     uses: zbrainiac-labs/DataOpsBackbone/.github/workflows/dataops-pipeline.yml@main
     with:
       SOURCE_DATABASE: ECO_DEV
-      SOURCE_SCHEMA: ECO_DCM
+      SOURCE_SCHEMA: ECO_RAW_v001
       DCM_PROJECT_IDENTIFIER: ECO_DEV.ECO_DCM.SHARING_OBJECTS
       DCM_TARGET: DEV
       CLONE_PER_BUILD: true
+      SNOWFLAKE_ACCOUNT: SFSEEUROPE-DEMO_MDAEPPEN
     secrets: inherit
